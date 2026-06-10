@@ -1,0 +1,17 @@
+{
+  "name": "marooned",
+  "version": "1.0.0",
+  "description": "2D survival colony game - escape the island",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron .",
+    "dev": "electron . --dev"
+  },
+  "keywords": [],
+  "author": "coco-handys",
+  "license": "ISC",
+  "dependencies": {
+    "electron": "^28.3.3",
+    "phaser": "^3.90.0"
+  }
+}
