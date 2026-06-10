@@ -2,14 +2,14 @@ class EventSystem {
   constructor(scene) {
     this.scene = scene;
     this.elapsed = 0;
-    this.nextEventIn = Phaser.Math.Between(50000, 100000);
+    this.nextEventIn = Phaser.Math.Between(120000, 240000);
   }
 
   update(delta, survivors, resources, hasShelter, onEvent) {
     this.elapsed += delta;
     if (this.elapsed >= this.nextEventIn) {
       this.elapsed = 0;
-      this.nextEventIn = Phaser.Math.Between(50000, 100000);
+      this.nextEventIn = Phaser.Math.Between(120000, 240000);
       this.trigger(survivors, resources, hasShelter, onEvent);
     }
   }

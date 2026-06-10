@@ -24,7 +24,7 @@ class GameScene extends Phaser.Scene {
     this.selectedSurvivor = null;
     this.day = 1;
     this.dayTimer = 0;
-    this.DAY_DURATION = 120;
+    this.DAY_DURATION = 240;
     this.NIGHT_START = 0.65;   // 전체 주기의 65%부터 밤
     this.isNight = false;
     this.gameOver = false;
@@ -107,6 +107,43 @@ class GameScene extends Phaser.Scene {
   handlePointerMove(pointer) {
     if (this.buildingSystem.placingType) {
       this.buildingSystem.drawGhost(pointer.worldX, pointer.worldY);
+    }
+    this.updateTooltip(pointer);
+  }
+
+  updateTooltip(pointer) {
+    const { col, row } = this.mapSystem.worldToTile(pointer.worldX, pointer.worldY);
+    const tile = this.mapSystem.getTile(col, row);
+    if (!tile) { this.hud.hideTooltip(); return; }
+
+    const lines = [];
+
+    // 건물이 있으면 건물 정보
+    const building = this.buildingSystem.getBuildingAt(col, row);
+    if (building) {
+      lines.push(`${building.def.icon} ${building.def.name}`);
+      lines.push(building.def.desc);
+      if (building.def.productionInterval) {
+        const sec = Math.ceil((building.def.productionInterval - building.timer) / 1000);
+        lines.push(`다음 생산: ${sec}초 후`);
+      }
+    } else {
+      // 타일 종류
+      const tileNames = ['깊은 바다', '바다', '모래사장', '풀밭', '숲', '바위밭'];
+      lines.push(tileNames[tile.type] || '');
+      if (tile.resource && tile.amount > 0) {
+        const resNames = { wood: '목재', stone: '돌', berry: '열매', coconut: '코코넛' };
+        lines.push(`${resNames[tile.resource] || tile.resource} ×${tile.amount} 채집 가능`);
+      }
+      if (tile.type === 0 || tile.type === 1) {
+        lines.push('낚시 / 물 채집 가능');
+      }
+    }
+
+    if (lines.length > 0) {
+      this.hud.showTooltip(pointer.x, pointer.y, lines);
+    } else {
+      this.hud.hideTooltip();
     }
   }
 
@@ -207,16 +244,16 @@ class GameScene extends Phaser.Scene {
   // ─── 자동 소비 ────────────────────────────────────
 
   autoConsume(survivor) {
-    if (survivor.hunger < 35 && this.resources.food > 0) {
+    if (survivor.hunger < 20 && this.resources.food > 0) {
       this.resources.food -= 1;
-      survivor.hunger = Math.min(100, survivor.hunger + 35);
+      survivor.hunger = Math.min(100, survivor.hunger + 40);
       if (this.buildingSystem.hasCampfire()) {
-        survivor.energy = Math.min(100, survivor.energy + 8);
+        survivor.energy = Math.min(100, survivor.energy + 10);
       }
     }
-    if (survivor.thirst < 35 && this.resources.water > 0) {
+    if (survivor.thirst < 20 && this.resources.water > 0) {
       this.resources.water -= 1;
-      survivor.thirst = Math.min(100, survivor.thirst + 40);
+      survivor.thirst = Math.min(100, survivor.thirst + 45);
     }
   }
 
@@ -361,7 +398,7 @@ class GameScene extends Phaser.Scene {
     this.checkGameOver();
 
     // HUD 업데이트
-    this.hud.update(this.resources, this.day, this.isNight);
+    this.hud.update(this.resources, this.day, this.isNight, this.survivors.length);
 
     // 카메라 키보드 이동
     const cam = this.cameras.main;

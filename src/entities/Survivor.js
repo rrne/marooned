@@ -114,9 +114,9 @@ class Survivor {
     const nightMult = (isNight && !hasShelter) ? 2.2 : 1;
 
     // 니즈 감소
-    this.hunger -= dt * 1.5;
-    this.thirst -= dt * 2.5;
-    this.energy -= dt * 0.8 * nightMult;
+    this.hunger -= dt * 0.4;
+    this.thirst -= dt * 0.65;
+    this.energy -= dt * 0.25 * nightMult;
 
     this.hunger = Math.max(0, this.hunger);
     this.thirst = Math.max(0, this.thirst);
@@ -124,7 +124,7 @@ class Survivor {
 
     // 굶거나 탈수시 hp 감소
     if (this.hunger <= 0 || this.thirst <= 0) {
-      this.hp -= dt * 3;
+      this.hp -= dt * 1.5;
     }
     this.hp = Math.min(this.hp, this.maxHp);
 
