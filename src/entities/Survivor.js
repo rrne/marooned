@@ -109,13 +109,14 @@ class Survivor {
     if (this.progressBar) this.progressBar.width = 18 * pct;
   }
 
-  update(delta) {
+  update(delta, isNight, hasShelter) {
     const dt = delta / 1000;
+    const nightMult = (isNight && !hasShelter) ? 2.2 : 1;
 
     // 니즈 감소
     this.hunger -= dt * 1.5;
     this.thirst -= dt * 2.5;
-    this.energy -= dt * 0.8;
+    this.energy -= dt * 0.8 * nightMult;
 
     this.hunger = Math.max(0, this.hunger);
     this.thirst = Math.max(0, this.thirst);
@@ -133,7 +134,8 @@ class Survivor {
     const dist = Math.sqrt(dx * dx + dy * dy);
 
     if (dist > 4) {
-      const spd = this.speed * (this.energy < 20 ? 0.4 : 1);
+      const nightSlow = (isNight && !hasShelter) ? 0.75 : 1;
+      const spd = this.speed * (this.energy < 20 ? 0.4 : 1) * nightSlow;
       this.container.x += (dx / dist) * spd * dt;
       this.container.y += (dy / dist) * spd * dt;
     } else if (this.task === 'move') {
